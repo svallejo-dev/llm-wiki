@@ -40,7 +40,7 @@ El script avisa de posibles duplicados. Si avisa, **para y pregunta** antes de i
 
 ```bash
 cat wiki/foco.md
-grep -A1 "^## \[" wiki/bitacora.md | tail -8
+grep -A2 "^## \[" wiki/bitacora.md | grep -E "^(## \[|> )" | tail -8
 ```
 
 Comprueba que este raw no se ingirió ya, y mira si `foco.md` tiene una decisión que afecte a esta fuente (orden de ingesta, páginas que ampliar en vez de crear, huecos declarados).
@@ -83,6 +83,10 @@ Clasifica el raw completo y cada elemento del inventario:
 
 **Si una entidad aparece solo de pasada**, no le hagas página: menciónala dentro del concepto que la contiene y anota en `foco.md` que espera una fuente con sustancia. Un stub solo se justifica si hace falta para enlazar algo, y entonces lleva `> **Nota de alcance.**` diciendo qué falta.
 
+**Si la fuente es la que esperaba un stub**, el triage de esa página es **Actualiza**, no Nueva: se amplía en su sitio, se retira la nota de alcance, se conserva `creado` y lo que aportaron otras fuentes, y la `confianza` puede subir si la fuente nueva es más sólida.
+
+**Tensión no es contradicción.** Si la fuente confirma los hechos de otra pero con otro énfasis (más prudente, menos entusiasta), no crees una `disputa`: anótalo en la página como forma de pesar ambas fuentes. La disputa es para hechos incompatibles.
+
 ## 6. Localiza antes de escribir
 
 Para cada cifra o cita que vayas a poner, ten delante la línea exacta del raw:
@@ -103,6 +107,8 @@ Una fuente bien ingerida toca típicamente **8-15 páginas**. Menos de 4 suele s
 
 Cuando una página queda incompleta a propósito porque el grueso llegará de otro raw, dilo dentro con un bloque `> **Nota de alcance.**`. Es la diferencia entre una página incompleta y una página engañosa, y evita que la próxima ingesta la reescriba en vez de ampliarla.
 
+**Nombres**: un resumen no se llama igual que la entidad de la que trata (`resumenes/guia-<tema>`, no `resumenes/<tema>` si existe `entidades/<tema>`).
+
 ## 8. Cascada
 
 ```bash
@@ -117,7 +123,11 @@ Para saber qué páginas existentes hay que revisar por haber tocado una entidad
 wiki/scripts/q -n conceptos/<pagina>
 ```
 
-Los **entrantes** son las páginas cuyo texto puede haberse quedado desactualizado. Esa es la cascada real, y es el paso donde este patrón se juega su premisa: que nadie se olvide de actualizar una referencia cruzada.
+Los **entrantes** son las páginas cuyo texto puede haberse quedado desactualizado. Esa es la cascada real, y es el paso donde este patrón se juega su premisa: que nadie se olvide de actualizar una referencia cruzada. Busca también las páginas existentes que **mencionan** algo que ahora tiene página propia, y enlázalas.
+
+**Revisa las notas de alcance** de cada página que tocaste: si decían *pendiente de tal fuente* y esa fuente es la que acabas de ingerir, o si ahora cubre más de lo que dicen, actualízalas. Una nota de alcance caducada miente.
+
+**Si el lint reporta algo estructural** (un pozo, un nombre repetido, una página larga), no bloquees la ingesta: termínala y repórtalo al final. Es una decisión del usuario, no un paso de la ingesta.
 
 Luego, a mano, solo lo que el generador no cubre:
 
@@ -127,7 +137,8 @@ Luego, a mano, solo lo que el generador no cubre:
 Y verifica el anclaje de lo que acabas de escribir:
 
 ```bash
-wiki/scripts/verificar_anclaje.py            # o una página concreta
+wiki/scripts/verificar_anclaje.py            # cifras y citas de las páginas con raw:
+wiki/scripts/verificar_anclaje.py --citas    # las citas entre comillas de toda la wiki
 ```
 
 ## 9. Bitácora

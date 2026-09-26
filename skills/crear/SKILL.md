@@ -118,6 +118,7 @@ El objetivo son 8-15 páginas enlazadas, lint limpio y anclaje verificado. Es lo
 cd <repo>
 python3 wiki/scripts/generar.py                        # sin incidencias
 wiki/scripts/verificar_anclaje.py                      # todo anclado
+wiki/scripts/verificar_anclaje.py --citas              # citas literales en toda la wiki
 wiki/scripts/q <un término del corpus>                 # páginas con su TL;DR
 python3 $PLUGIN/scripts/andamiar.py comprobar <repo>   # scripts al día
 ```
@@ -135,6 +136,7 @@ Cada una costó algo en la primera wiki:
 - **Citas traducidas entre comillas.** Afirman una literalidad que no pueden cumplir. Comillas solo para texto literal en el idioma original; lo traducido, en cursiva.
 - **Saltos de línea de `pdftotext`.** Una frase del PDF puede quedar partida en dos líneas: ancla la cifra y sus palabras contiguas, no la frase entera.
 - **Reemplazos masivos con regex que tocan el frontmatter.** En la primera wiki rompió el entrecomillado de un campo. Opera solo sobre el cuerpo, o revisa el frontmatter después.
+- **Un resumen con el mismo nombre que su entidad** (`resumenes/x` y `entidades/x`) confunde `_alias.tsv`. El generador lo reporta; nómbralo `guia-x` o por el título de la fuente.
 - **Stubs sin nota de alcance.** Si una página nace incompleta porque su fuente llegará después, dilo dentro con `> **Nota de alcance.**`; si no, la próxima ingesta la reescribirá en vez de ampliarla.
 - **El esquema entero en `CLAUDE.md`.** Se carga en cada sesión: ahí va el núcleo, y los procedimientos en skills. La plantilla ya viene partida; no la vuelvas a juntar.
 

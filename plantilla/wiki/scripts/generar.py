@@ -67,8 +67,11 @@ def cargar(cfg):
                 continue
             texto = p.read_text(encoding="utf-8")
             clave = f"{sec}/{p.stem}"
+            fin = texto.find("\n---", 3) if texto.startswith("---") else -1
+            cuerpo = texto[fin + 4:] if fin > 0 else texto
             pags[clave] = {
                 "sec": sec, "ruta": p, "fm": frontmatter(texto),
+                "palabras": len(cuerpo.split()),
                 "out": {e.strip() for e in RE_ENLACE.findall(texto)} - {clave},
                 "tip": [(v.strip(), d.strip()) for v, d in RE_TIPADA.findall(texto)],
             }
@@ -144,6 +147,8 @@ def lint(cfg, pags, entrantes):
     confianzas = set(cfg.get("confianza", ["alto", "medio", "bajo"]))
     tldr_max = cfg.get("tldr_max", 70)
     minimos = cfg.get("salientes_minimos", 2)
+    palabras_pozo = cfg.get("palabras_pozo", 1500)
+    palabras_max = cfg.get("palabras_max", 2500)
 
     for k, v in pags.items():
         fm, tipo, s = v["fm"], v["fm"].get("tipo", ""), por_sec[v["sec"]]
@@ -182,13 +187,26 @@ def lint(cfg, pags, entrantes):
                 inc["cubre inválido"].append(k)
 
     for k, v in pags.items():
-        s, n = por_sec[v["sec"]], len(entrantes[k])
+        s, n, w = por_sec[v["sec"]], len(entrantes[k]), v["palabras"]
         if not n and not s.get("exenta_huerfanas"):
             inc["huérfanas"].append(k)
-        if s.get("umbral_pozo") and n > s["umbral_pozo"]:
-            inc[f"pozos gravitatorios (>{s['umbral_pozo']} entrantes)"].append(f"{k}: {n}")
+        # Un pozo gravitatorio atrae enlaces Y no para de crecer. Muchos
+        # entrantes en una página concisa es un hub sano: la regla mide ambas cosas.
+        if s.get("umbral_pozo") and n > s["umbral_pozo"] and w > palabras_pozo:
+            inc[f"pozos gravitatorios (>{s['umbral_pozo']} entrantes y >{palabras_pozo} palabras)"].append(
+                f"{k}: {n} entrantes, {w} palabras")
+        if w > palabras_max:
+            inc[f"páginas de más de {palabras_max} palabras"].append(f"{k}: {w}")
         if n and s.get("hoja"):
             inc["nodo hoja con enlaces entrantes"].append(k)
+    # El mismo nombre en dos secciones confunde _alias.tsv y el autocompletado:
+    # un resumen no debe llamarse igual que la entidad de la que trata.
+    nombres = collections.defaultdict(list)
+    for k in pags:
+        nombres[k.split("/", 1)[1]].append(k)
+    for nombre, ks in nombres.items():
+        if len(ks) > 1:
+            inc["mismo nombre en varias secciones"].append(" · ".join(sorted(ks)))
     return inc
 
 

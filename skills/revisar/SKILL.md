@@ -31,9 +31,10 @@ Cero criterio, solo comandos:
 ```bash
 python3 wiki/scripts/generar.py
 wiki/scripts/verificar_anclaje.py [<pagina>]
+wiki/scripts/verificar_anclaje.py --citas
 ```
 
-El primero regenera los derivados y reporta: enlaces rotos, huérfanas (exentas `resumenes`, `papers`, `sintesis`), páginas con menos de 2 salientes, violaciones de topología, verbos tipados fuera de los cuatro permitidos, `panorama` con `cubre < 3`, pozos gravitatorios (>15 entrantes), síntesis con entrantes, frontmatter incompleto, `tldr` de más de 70 caracteres y `confianza` inválida.
+El primero regenera los derivados y reporta: enlaces rotos, huérfanas (exentas `resumenes`, `papers`, `sintesis`), páginas con menos de 2 salientes, violaciones de topología, verbos tipados fuera de los cuatro permitidos, `panorama` con `cubre < 3`, pozos gravitatorios (muchos entrantes **y** mucho texto: una página concisa muy enlazada es un hub sano, no un pozo), páginas demasiado largas, el mismo nombre en dos secciones, síntesis con entrantes, frontmatter incompleto, `tldr` de más de 70 caracteres y `confianza` inválida.
 
 El segundo comprueba el invariante de anclaje: que cada cifra, fecha y cita de las páginas con campo `raw:` exista **literal** en su raw. Distingue dos cosas que conviene no confundir:
 

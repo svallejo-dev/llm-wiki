@@ -8,7 +8,7 @@ El reparto es estricto: **el usuario cura fuentes, dirige y pregunta; tú escrib
 
 ```bash
 cat wiki/foco.md
-grep -A1 "^## \[" wiki/bitacora.md | tail -8
+grep -A2 "^## \[" wiki/bitacora.md | grep -E "^(## \[|> )" | tail -8
 ```
 
 `foco.md` dice en qué estamos y qué está decidido; la bitácora, qué se hizo. No trabajes sin leer ambos: es la diferencia entre continuar la wiki y empezar otra encima.
@@ -96,7 +96,7 @@ python3 wiki/scripts/generar.py       # regenerar índices, alias y grafo + lint
 wiki/scripts/verificar_anclaje.py     # ¿toda cifra existe literal en su raw?
 wiki/scripts/capturar.py <origen>     # sellar una fuente en raw/ con procedencia
 grep -rn "<literal>" wiki/raw/        # comprobar un literal a mano
-grep -A1 "^## \[" wiki/bitacora.md | tail -8
+grep -A2 "^## \[" wiki/bitacora.md | grep -E "^(## \[|> )" | tail -8
 ```
 
 ## Qué NO hacer todavía

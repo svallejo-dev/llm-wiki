@@ -44,7 +44,7 @@ Aprendidas construyendo otras wikis. Aplican a cualquier corpus:
 
 **Un `panorama` no aporta hechos.** Si escribes un dato nuevo en un panorama, ese dato pertenece a un concepto o una entidad.
 
-**Un hub con demasiados enlaces entrantes se divide en sub-hubs.** El umbral está en `_config.json` y el generador lo reporta.
+**Un pozo gravitatorio se divide en sub-hubs.** Un pozo es una página que atrae enlaces **y** no para de crecer, absorbiendo contenido que debería vivir en otras. Muchos enlaces entrantes en una página concisa no es un pozo: es un hub sano, como la entidad central de una fuente. Los umbrales (`umbral_pozo`, `palabras_pozo`) están en `_config.json` y el generador lo reporta.
 
 ### Reglas propias de este corpus
 
@@ -157,7 +157,9 @@ Invariantes que verifica `generar.py`:
 - Ningún enlace entrante a `sintesis/`. *Lo que opinas no es fuente de lo que sabes.*
 - Ningún `panorama` con `cubre < 3`.
 - Ninguna página con menos de 2 enlaces salientes internos.
-- Ninguna entidad o concepto por encima del umbral de entrantes sin subdividir.
+- Ninguna entidad o concepto que supere a la vez el umbral de entrantes y el de palabras.
+- Ninguna página por encima de `palabras_max`.
+- Ningún nombre repetido en dos secciones.
 - Huérfanas: se exigen entrantes salvo en `resumenes` y `sintesis`, que se alcanzan desde el índice por diseño.
 
 ---
@@ -169,13 +171,14 @@ Invariantes que verifica `generar.py`:
 - **Tipos especializados**: `<carpeta>/<clave-natural>-<slug>.md` (p. ej. `papers/2023-react.md`).
 - **Comparativas**: `comparativas/<a>-vs-<b>.md`. **Disputas**: `comparativas/disputa-<tema>.md`.
 - **Síntesis**: se nombran por el **tema de la conclusión**, no por la pregunta que la originó.
+- **Un resumen no se llama igual que la entidad de la que trata**: `resumenes/guia-<tema>` o el título de la fuente, nunca `resumenes/<tema>` si existe `entidades/<tema>`. El mismo nombre en dos secciones confunde `_alias.tsv` y el autocompletado; el generador lo reporta.
 - **Prefijo `_`**: fichero de sistema o generado, no una página. No lo enlaces como contenido.
 
 ---
 
 ## Citas
 
-**Las comillas afirman literalidad.** Todo pasaje entre comillas tiene que existir tal cual en el raw, y `verificar_anclaje.py` lo comprueba.
+**Las comillas afirman literalidad.** Todo pasaje entre comillas tiene que existir tal cual en el raw, en **cualquier** página: `verificar_anclaje.py --citas` lo comprueba en toda la wiki, no solo en las páginas con campo `raw:`.
 
 - **Cita verbatim** → entre comillas y **en el idioma del original**.
 - **Traducción o paráfrasis** → en *cursiva sin comillas*. Una traducción no puede cumplir el invariante de anclaje, así que no debe aparentarlo.

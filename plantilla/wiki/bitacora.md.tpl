@@ -12,7 +12,7 @@ Operaciones: `sellado`, `ingesta`, `consulta`, `sintesis`, `lint`, `esquema`. Di
 
 **Append-only: nunca se edita una entrada anterior.** Pasadas ~30 entradas, las más antiguas se archivan en `wiki/bitacora-archivo/<año>-Q<n>.md`.
 
-Estado reciente sin leer el detalle: `grep -A1 "^## \[" wiki/bitacora.md | tail -8`
+Estado reciente sin leer el detalle: `grep -A2 "^## \[" wiki/bitacora.md | grep -E "^(## \[|> )" | tail -8`
 
 ---
 

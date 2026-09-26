@@ -1,7 +1,7 @@
 # Foco
 
 > Se sobrescribe en cada sesión. Máximo ~500 palabras.
-> Esto y `grep -A1 "^## \[" wiki/bitacora.md | tail -8` es lo primero que se lee.
+> Esto y `grep -A2 "^## \[" wiki/bitacora.md | grep -E "^(## \[|> )" | tail -8` es lo primero que se lee.
 
 ## En qué estoy
 

@@ -11,6 +11,8 @@ alta señal de una página y los busca **verbatim** en los raw de su campo `raw:
   verificar_anclaje.py                      todas las páginas con campo raw:
   verificar_anclaje.py conceptos/rag        una página
   verificar_anclaje.py --cifras             solo el inventario de _cifras.md
+  verificar_anclaje.py --citas              las citas entre comillas de TODAS las
+                                            páginas, contra todo el raw
 
 Reporta, nunca arregla: un hecho mal anclado lo decide una persona (regla 11).
 
@@ -45,10 +47,8 @@ PATRONES = [
     (r"\b(\d+\s*(?:%|×|K\b|M\b))", "porcentaje o multiplicador"),
     (r"\b(\d{4}-\d{2}-\d{2})\b", "fecha ISO"),
     (r"\bn\s*=\s*(\d+)\b", "tamaño muestral"),
-    # Sin ` ni * dentro: si los hay, el regex está cruzando de una cita a la
-    # siguiente en vez de capturar una sola.
-    (r"[\"“]([^\"”\n`*]{40,})[\"”]", "cita textual"),
 ]
+CITA_MIN = 40   # por debajo, las comillas suelen marcar un término, no una cita
 RUIDO = re.compile(r"^(?:\d{4}|20\d\d|[01]?\d|\d{1,2}[.,]\d{1,2})$")
 # Rutas de fichero y fechas de la propia página no son datos de carga: son
 # metadatos que la wiki escribe sobre sí misma, no afirmaciones sobre el mundo.
@@ -80,8 +80,39 @@ def cuerpo(texto):
     return texto
 
 
+def sin_rutas(texto):
+    """Quita destinos de enlaces y rutas: una fecha dentro de
+    `raw/2026-09-21-x.md` es parte de un nombre de fichero, no un dato."""
+    texto = re.sub(r"\]\([^)]*\)", "]", texto)                      # destinos de [texto](destino)
+    texto = re.sub(r"`[^`\n]*(?:raw|wiki)/[^`\n]*`", " ", texto)       # rutas entre backticks
+    return re.sub(r"\b(?:raw|wiki)/\S+", " ", texto)                   # rutas sueltas
+
+
+def citas(texto):
+    """Pasajes entre comillas, emparejando en orden.
+
+    Con comillas rectas un patrón no sabe cuál abre y cuál cierra, y empareja el
+    cierre de una cita con la apertura de la siguiente. Aquí se recorre cada línea
+    y se emparejan de dos en dos; las tipográficas (“ ”) ya distinguen apertura
+    y cierre.
+    """
+    out = []
+    for linea in texto.splitlines():
+        out += re.findall(r"“([^”]+)”", linea)
+        rectas = [m.start() for m in re.finditer(r'"', linea)]
+        for a, b in zip(rectas[0::2], rectas[1::2]):
+            out.append(linea[a + 1:b])
+    return [c.strip() for c in out
+            if len(c.strip()) >= CITA_MIN and "`" not in c and "[[" not in c]
+
+
 def literales(texto, fechas_propias=()):
+    texto = sin_rutas(texto)
     vistos, out = set(), []
+    for c in citas(texto):
+        if norm(c) not in vistos:
+            vistos.add(norm(c))
+            out.append((c, "cita textual"))
     for pat, clase in PATRONES:
         for m in re.finditer(pat, texto):
             lit = m.group(1).strip()
@@ -141,6 +172,27 @@ def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     solo_cifras = "--cifras" in sys.argv
 
+    if "--citas" in sys.argv:
+        raws = " ".join(norm(f.read_text(encoding="utf-8", errors="replace"))
+                        for f in (W / "raw").rglob("*.md"))
+        malas = 0
+        for s in secciones():
+            for pag in sorted((W / s).glob("*.md")):
+                if pag.name.startswith("_"):
+                    continue
+                for c in citas(sin_rutas(cuerpo(pag.read_text(encoding="utf-8")))):
+                    if norm(c) not in raws:
+                        malas += 1
+                        corto = c if len(c) < 70 else c[:67] + "..."
+                        print(f"  {s}/{pag.stem}  \u201c{corto}\u201d")
+        if malas:
+            print(f"\n{malas} citas entre comillas que no están literales en ningún raw. "
+                  "Casi siempre son traducciones: quita las comillas y déjalas en cursiva "
+                  "como paráfrasis, o cita en el idioma original.")
+            return 1
+        print("Todas las citas entre comillas están literales en el raw.")
+        return 0
+
     if solo_cifras:
         t = (W / "_cifras.md").read_text(encoding="utf-8")
         raws = {f: norm(f.read_text(encoding="utf-8", errors="replace"))
@@ -170,14 +222,14 @@ def main():
             continue
         con_raw += 1
         if fallos:
-            citas = [f for f in fallos if f[1] == "cita textual"]
+            no_literales = [f for f in fallos if f[1] == "cita textual"]
             datos = [f for f in fallos if f[1] != "cita textual"]
             total_fallos += len(datos)
-            total_citas += len(citas)
+            total_citas += len(no_literales)
             print(f"\n  {clave}  ({n} literales)")
             for lit, clase in datos:
                 print(f"    SIN ANCLAJE  {lit}   [{clase}]")
-            for lit, _ in citas:
+            for lit, _ in no_literales:
                 corto = lit if len(lit) < 70 else lit[:67] + "..."
                 print(f"    CITA NO LITERAL  \u201c{corto}\u201d")
 
