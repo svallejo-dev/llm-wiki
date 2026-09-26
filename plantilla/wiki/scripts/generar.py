@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Sebastian Vallejo — https://github.com/svallejo-dev/llm-wiki
+# Copiado en tu wiki, es tuyo: no hace falta conservar este aviso (LICENSE-WIKIS.md).
 """Genera los índices derivados de la wiki y reporta el lint mecánico.
 
 Una sola pasada sobre el frontmatter y los enlaces produce:

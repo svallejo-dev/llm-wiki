@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Sebastian Vallejo — https://github.com/svallejo-dev/llm-wiki
+# Copiado en tu wiki, es tuyo: no hace falta conservar este aviso (LICENSE-WIKIS.md).
 """Mete una fuente en wiki/raw/ con nombre normalizado y encabezado de procedencia.
 
 Resuelve los cinco pasos que a mano se olvidan: normalizar el nombre, poner

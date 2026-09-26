@@ -70,3 +70,10 @@ Los scripts de cada wiki son copias de los del plugin, para que la wiki funcione
 ## Idioma
 
 Las skills, las plantillas y las wikis que generan están en español. Los scripts son independientes del idioma: las secciones y sus nombres se declaran en `wiki/_config.json`.
+
+## Licencia
+
+[MIT](LICENSE) © 2026 Sebastian Vallejo.
+
+Lo que el plugin copia o genera en tu repo —la plantilla y los scripts de `wiki/scripts/`— es tuyo: puedes usarlo, modificarlo y distribuirlo **sin conservar el aviso de copyright** ([permiso adicional](LICENSE-WIKIS.md)). La atribución de la MIT solo aplica si redistribuyes el plugin en sí.
+

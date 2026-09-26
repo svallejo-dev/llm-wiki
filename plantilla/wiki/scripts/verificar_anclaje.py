@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Sebastian Vallejo — https://github.com/svallejo-dev/llm-wiki
+# Copiado en tu wiki, es tuyo: no hace falta conservar este aviso (LICENSE-WIKIS.md).
 """Verifica el invariante de anclaje: toda cifra citable existe literal en el raw.
 
 La ingesta establece el invariante; esto lo comprueba. Extrae los literales de

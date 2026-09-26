@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Sebastian Vallejo — https://github.com/svallejo-dev/llm-wiki
+# Copiado en tu wiki, es tuyo: no hace falta conservar este aviso (LICENSE-WIKIS.md).
 """Estado de repaso de la wiki, con repetición espaciada (cajas de Leitner).
 
 Recordar lo que se ha leído no es lo mismo que haberlo leído: esto lleva la
