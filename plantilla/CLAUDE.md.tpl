@@ -32,13 +32,15 @@ Este fichero es el núcleo y se carga siempre. Los procedimientos los aporta el 
 | Capturar una fuente e integrarla (URL, PDF, fichero en `raw/`) | `/llm-wiki:ingerir` |
 | Revisar la salud de la wiki, o verificar las cifras de una página | `/llm-wiki:revisar` |
 | Archivar una conclusión como comparativa, panorama o síntesis | `/llm-wiki:sintetizar` |
+| Entender un tema de forma concreta y fácil | `/llm-wiki:explicar` |
+| Ponerte a prueba sobre lo que dice la wiki | `/llm-wiki:repasar` |
 | **Responder una pregunta** | aquí mismo, más abajo |
 
 **No escribas ni edites una página sin haber leído `wiki/_esquema/formatos.md` en esta sesión.** Tipos, frontmatter, topología y nomenclatura están ahí, es la única especificación y no se duplica dentro de las skills.
 
 ## Responder una pregunta
 
-Es el camino más frecuente, así que va aquí y no en una skill. El objetivo es doble: responder bien y **leer lo mínimo**. Cada página abierta de más son ~850 tokens que no hacían falta.
+Es el camino más frecuente, así que va aquí y no en una skill. Si lo que se pide es **entender** un tema, no un dato, usa `/llm-wiki:explicar`. El objetivo es doble: responder bien y **leer lo mínimo**. Cada página abierta de más son ~850 tokens que no hacían falta.
 
 1. **Siembra con la búsqueda, no con el índice.** `wiki/scripts/q <termino>` devuelve `página · TL;DR · (confianza, grado entrante)`. Con eso decides qué abrir **sin abrir nada**. Para una pregunta concreta esto sustituye a leer `indice.md` y el índice de sección; úsalos solo si la pregunta es amplia o no sabes por dónde empezar.
 2. **Expande por el grafo.** `q -n <pagina>` da entrantes, salientes y relaciones tipadas; `q -h` llega a 2 saltos. Encuentra lo estructuralmente cercano que **no contiene el término buscado** — la página que no sabías que tenías que buscar. Mira la columna de tipadas: si algo `contradice` o `reemplaza a` otra cosa, la respuesta probablemente deba mencionarlo.
@@ -77,6 +79,7 @@ Innegociables. Cada una corresponde a un modo documentado de arruinar una wiki.
 | `wiki/_cifras.md` | Inventario de cifras citables con su literal exacto. A mano, en cada ingesta. |
 | `wiki/bitacora.md` | Append-only. Cabecera grepeable + una línea de estado + detalle. |
 | `wiki/foco.md` | Caché de sesión, ~500 palabras. Se sobrescribe. |
+| `wiki/_repaso.tsv` | Estado personal de repaso (repetición espaciada). Solo lo escribe `repaso.py`; no es contenido. |
 | `wiki/_esquema/formatos.md` | **La** especificación: tipos, frontmatter, topología, nomenclatura, citas, procedencia del raw, fuentes no textuales. |
 | `wiki/_config.json` | Secciones, topología y umbrales que aplican los scripts. Coherente con `formatos.md`. |
 | `.claude/settings.json` | Declara el plugin `llm-wiki`, que aporta los procedimientos. Quien clone el repo verá que Claude Code se lo ofrece. |

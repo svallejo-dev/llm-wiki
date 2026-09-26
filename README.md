@@ -21,8 +21,10 @@ Reinicia Claude Code para que cargue las skills.
 | `/llm-wiki:ingerir` | Integra una fuente nueva (fichero, URL o PDF): triage, páginas nuevas o ampliadas, cascada de índices, bitácora |
 | `/llm-wiki:revisar` | Revisión de salud: enlaces rotos, huérfanas, topología, cifras sin anclaje, contradicciones sin marcar |
 | `/llm-wiki:sintetizar` | Archiva una conclusión como comparativa, panorama o síntesis propia |
+| `/llm-wiki:explicar` | Explica un tema de forma concreta y fácil, anclado a tus páginas y en el orden que marca el grafo: idea, ejemplo real, cómo funciona, analogía con su límite, cuánto pesa la evidencia |
+| `/llm-wiki:repasar` | Te pregunta sobre la wiki de una en una, corrige contra las páginas y programa el siguiente repaso con repetición espaciada. Exporta tarjetas a Anki |
 
-Se disparan solas cuando la petición encaja: "convierte ./docs en una wiki", "ingiere este PDF", "pasa el lint", "archiva esa comparación". Responder preguntas contra la wiki no necesita skill: lo hace el `CLAUDE.md` de cada wiki.
+Se disparan solas cuando la petición encaja: "convierte ./docs en una wiki", "ingiere este PDF", "pasa el lint", "archiva esa comparación", "explícame X", "ponme a prueba". Responder preguntas contra la wiki no necesita skill: lo hace el `CLAUDE.md` de cada wiki.
 
 ## Cómo es una wiki
 
@@ -37,7 +39,7 @@ tu-repo/
     ├── _alias.tsv  _grafo.tsv  (generados)
     ├── _config.json          secciones, topología y umbrales
     ├── _esquema/formatos.md  la especificación
-    └── scripts/              generar.py · q · capturar.py · verificar_anclaje.py
+    └── scripts/              generar.py · q · capturar.py · verificar_anclaje.py · repaso.py
 ```
 
 ## Principios
@@ -46,6 +48,7 @@ tu-repo/
 - **Invariante de anclaje.** Toda cifra, fecha o cita existe literalmente en la fuente enlazada, y `verificar_anclaje.py` lo comprueba. Las comillas afirman literalidad: una traducción va en cursiva, sin comillas.
 - **Las contradicciones son activos, no errores.** Se marcan como disputa; nunca se sobrescribe una afirmación con otra.
 - **Leer lo mínimo.** `q` devuelve el resumen de una línea de cada página, así que se decide qué abrir sin abrir nada; `_grafo.tsv` da el vecindario de cualquier página en una línea.
+- **Aprender, no solo acumular.** La crítica más seria al patrón es que el LLM lee y conecta, y el usuario no aprende. `explicar` y `repasar` existen para eso: entender desde tus páginas y recordar sin mirar.
 - **Sin infraestructura que la escala no justifique.** Ni base vectorial, ni base de datos de grafos, ni GraphRAG: grep y un grafo en texto plano bastan para cientos de páginas.
 
 ## Requisitos

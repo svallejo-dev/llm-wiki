@@ -13,7 +13,7 @@ Wiki recién andamiada. Siguiente paso: sellar el raw y hacer la primera ingesta
 
 ## Las operaciones son skills
 
-`/llm-wiki:ingerir` (capturar + integrar una fuente) · `/llm-wiki:revisar` (lint y anclaje) · `/llm-wiki:sintetizar` (archivar una conclusión). Se disparan solas por la tarea, o se invocan por nombre. Responder preguntas va en `CLAUDE.md`.
+`/llm-wiki:ingerir` (capturar + integrar una fuente) · `/llm-wiki:revisar` (lint y anclaje) · `/llm-wiki:sintetizar` (archivar una conclusión) · `/llm-wiki:explicar` (entender un tema) · `/llm-wiki:repasar` (ponerse a prueba). Se disparan solas por la tarea, o se invocan por nombre. Responder preguntas va en `CLAUDE.md`.
 
 ## Decisiones recientes
 

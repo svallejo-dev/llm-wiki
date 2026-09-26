@@ -140,7 +140,7 @@ Cada una costó algo en la primera wiki:
 
 ## Mantener los scripts al día
 
-`generar.py`, `q`, `capturar.py` y `verificar_anclaje.py` son **los mismos en todas las wikis** y leen de `wiki/_config.json` lo que depende del dominio. Cuando mejoran en la plantilla:
+`generar.py`, `q`, `capturar.py`, `verificar_anclaje.py` y `repaso.py` son **los mismos en todas las wikis** y leen de `wiki/_config.json` lo que depende del dominio. Cuando mejoran en la plantilla:
 
 ```bash
 python3 $PLUGIN/scripts/andamiar.py comprobar <repo>    # ¿cuáles están desactualizados?
