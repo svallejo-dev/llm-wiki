@@ -58,9 +58,12 @@ Python 3.9+ (solo biblioteca estándar). Para PDFs, `poppler` (`brew install pop
 ## Actualizar
 
 ```bash
-claude plugin update llm-wiki                                # las skills
+claude plugin update llm-wiki@llm-wiki --scope user         # las skills (instalación de usuario)
+claude plugin update llm-wiki@llm-wiki --scope project      # …y en cada repo que lo declare
 python3 <plugin>/scripts/andamiar.py actualizar <tu-repo>    # los scripts de una wiki
 ```
+
+Si el plugin está instalado a nivel de usuario **y** declarado en un repo, son dos instalaciones: `update` sin `--scope` solo actualiza la del directorio donde lo lances.
 
 Los scripts de cada wiki son copias de los del plugin, para que la wiki funcione también sin Claude Code (desde la terminal, en Obsidian o con otro agente). `andamiar.py comprobar` dice si van por detrás; `/llm-wiki:revisar` lo sugiere cuando toca.
 
