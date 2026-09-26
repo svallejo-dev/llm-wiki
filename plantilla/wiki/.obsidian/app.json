@@ -1,0 +1,10 @@
+{
+  "attachmentFolderPath": "raw/assets",
+  "newFileFolderPath": "sintesis",
+  "userIgnoreFilters": [
+    ".git/",
+    ".claude/"
+  ],
+  "alwaysUpdateLinks": true,
+  "useMarkdownLinks": false
+}

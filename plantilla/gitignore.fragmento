@@ -1,0 +1,5 @@
+
+# Obsidian (estado local de la bóveda; la configuración compartida sí se versiona)
+wiki/.obsidian/workspace*.json
+wiki/.obsidian/cache
+.DS_Store

@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+"""Búsqueda sobre la wiki que devuelve TL;DR, no rutas.
+
+El punto es decidir qué abrir sin abrir nada: cada resultado trae su resumen
+de una línea, su confianza y su grado entrante.
+
+  q <término>...        busca en alias, títulos y cuerpo; ordena por relevancia
+  q -n <pagina>         vecindario de una página (entrantes, salientes, tipadas)
+  q -h <pagina>         igual que -n pero expande a 2 saltos
+  q -c                  cuenta páginas por sección
+
+Sin dependencias: solo stdlib. Acentos y mayúsculas se ignoran.
+"""
+import json
+import re
+import sys
+import unicodedata
+import pathlib
+
+W = pathlib.Path(__file__).resolve().parent.parent
+
+
+def secciones():
+    """Las secciones las declara wiki/_config.json: el script no conoce ninguna wiki."""
+    f = W / "_config.json"
+    if not f.exists():
+        sys.exit(f"ERROR: falta {f.relative_to(W.parent)}.")
+    return [s["carpeta"] for s in json.loads(f.read_text(encoding="utf-8"))["secciones"]]
+
+
+def norm(s):
+    s = unicodedata.normalize("NFD", s.lower())
+    return "".join(c for c in s if unicodedata.category(c) != "Mn")
+
+
+def meta():
+    """pagina -> (tldr, confianza, tipo)."""
+    d = {}
+    for sec in secciones():
+        for p in (W / sec).glob("*.md"):
+            if p.name.startswith("_"):
+                continue
+            t = p.read_text(encoding="utf-8")[:900]
+            g = lambda k: (re.search(rf"^{k}: (.*)$", t, re.M) or [None, ""])[1] \
+                if re.search(rf"^{k}: (.*)$", t, re.M) else ""
+            d[f"{sec}/{p.stem}"] = (g("tldr"), g("confianza"), g("tipo"))
+    return d
+
+
+def grafo():
+    f = W / "_grafo.tsv"
+    if not f.exists():
+        return {}
+    g = {}
+    for l in f.read_text(encoding="utf-8").splitlines():
+        if l.startswith("#") or not l.strip():
+            continue
+        c = l.split("\t")
+        c += [""] * (6 - len(c))
+        g[c[0]] = {"in": [x for x in c[3].split(",") if x],
+                   "out": [x for x in c[4].split(",") if x],
+                   "tip": [x for x in c[5].split(",") if x]}
+    return g
+
+
+def linea(k, m, g, prefijo=""):
+    tldr, conf, _ = m.get(k, ("", "", ""))
+    ent = len(g.get(k, {}).get("in", []))
+    return f"{prefijo}{k}  ·  {tldr}  ({conf}, in:{ent})"
+
+
+def buscar(terminos, m, g):
+    alias = {}
+    fa = W / "_alias.tsv"
+    if fa.exists():
+        for l in fa.read_text(encoding="utf-8").splitlines():
+            if l.startswith("#") or "\t" not in l:
+                continue
+            a, p = l.split("\t", 1)
+            alias.setdefault(p, []).append(a)
+
+    q = [norm(t) for t in terminos]
+    res = []
+    for k in m:
+        sec, stem = k.split("/", 1)
+        cuerpo = norm((W / f"{k}.md").read_text(encoding="utf-8"))
+        als = norm(" ".join(alias.get(k, [])))
+        puntos = 0
+        for t in q:
+            if t in als:
+                puntos += 10          # coincide con un alias: señal fuerte
+            if t in norm(m[k][0]):
+                puntos += 5           # coincide con el TL;DR
+            puntos += min(cuerpo.count(t), 8)
+        if puntos:
+            res.append((puntos, k))
+    res.sort(key=lambda x: (-x[0], x[1]))
+    return res
+
+
+def main():
+    a = sys.argv[1:]
+    if not a:
+        print(__doc__.strip())
+        return 1
+    m, g = meta(), grafo()
+
+    if a[0] == "-c":
+        for sec in secciones():
+            n = sum(1 for k in m if k.startswith(sec + "/"))
+            print(f"{n:4d}  {sec}")
+        print(f"{len(m):4d}  TOTAL")
+        return 0
+
+    if a[0] in ("-n", "-h"):
+        if len(a) < 2:
+            print("falta la página. ej: q -n conceptos/rag")
+            return 1
+        k = a[1].removesuffix(".md")
+        if k not in g:
+            cand = [x for x in m if a[1] in x]
+            print(f"no encuentro `{k}` en _grafo.tsv." +
+                  (f" ¿Quizá: {', '.join(cand[:5])}?" if cand else
+                   " ¿Has corrido generar.py?"))
+            return 1
+        print(linea(k, m, g))
+        print("\n  ENTRANTES")
+        for x in g[k]["in"]:
+            print(linea(x, m, g, "    "))
+        print("\n  SALIENTES")
+        for x in g[k]["out"]:
+            print(linea(x, m, g, "    "))
+        if g[k]["tip"]:
+            print("\n  TIPADAS")
+            for x in g[k]["tip"]:
+                print(f"    {x}")
+        if a[0] == "-h":
+            vecinos = set(g[k]["in"]) | set(g[k]["out"])
+            dos = sorted({y for v in vecinos for y in
+                          set(g.get(v, {}).get("in", [])) | set(g.get(v, {}).get("out", []))}
+                         - vecinos - {k})
+            print(f"\n  A 2 SALTOS ({len(dos)})")
+            for x in dos:
+                print(linea(x, m, g, "    "))
+        return 0
+
+    res = buscar(a, m, g)
+    if not res:
+        print(f"sin resultados para: {' '.join(a)}")
+        print("Revisa los huecos conocidos en wiki/foco.md antes de improvisar.")
+        return 1
+    for puntos, k in res:
+        print(linea(k, m, g))
+    print(f"\n{len(res)} páginas. Abre 1-3, no todas. "
+          f"Para expandir por el grafo: q -n <pagina>")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
